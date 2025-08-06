@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Page setup
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{YouTube Notes}
+\fancyhead[R]{\today}
+\fancyfoot[C]{\thepage}
+
+% Code block styling
+\lstset{
+    backgroundcolor=\color{gray!10},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!30}
+}
+
+% Quote styling
+\newtcolorbox{myquote}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    leftrule=3mm
+}
+
+\begin{document}
+
+\section\{Building MCP Servers: Best Practices and Avoiding Common Pitfalls\}
+\textbf\{Created:\} October 26, 2023
+\textbf\{Tags:\} \#MCP \#LLM \#Server \#API \#BestPractices \#AI
+
+\subsection\{📑 Table of Contents\}
+\begin\{itemize\}
+\item  [Summary](\#-summary)
+\item  [Key Concepts](\#-key-concepts)
+\item  [Detailed Notes](\#-detailed-notes)
+\end\{itemize\}
+    *   [Introduction to MCP Servers](\#introduction-to-mcp-servers)
+    *   [The Pitfalls of Autogenerating MCP Servers](\#the-pitfalls-of-autogenerating-mcp-servers)
+    *   [Best Practices for Building MCP Servers](\#best-practices-for-building-mcp-servers)
+\begin\{itemize\}
+\item  [Important Quotes](\#-important-quotes)
+\item  [Key Takeaways](\#-key-takeaways)
+\item  [Action Items](\#-action-items)
+\item  [Quick Reference](\#-quick-reference)
+\end\{itemize\}
+
+\subsection\{📝 Summary\}
+This presentation discusses the challenges and best practices for building MCP (Machine Communication Protocol) servers, which enable LLMs (Large Language Models) to interact with real-world applications. It argues against simply autogenerating MCP servers from existing APIs and suggests a hybrid approach that prioritizes careful tool selection, tailored descriptions for LLMs, and purpose-built tools that go beyond basic API functionality.
+
+\subsection\{🎯 Key Concepts\}
+
+| Concept                      | Description                                                                                                       | Example                                                                 |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| \textbf\{MCP (Machine Communication Protocol)\} | An open protocol standardizing how applications provide context to LLMs and how LLMs can use real-world products. | Enables LLMs to use real-world applications and services.                |
+| \textbf\{MCP Server\}               | A server that exposes tools, resources, and prompts to an LLM (the MCP client).                                   | Allows the LLM to interact with an application or service.             |
+| \textbf\{Tools\}                    | Actions that an LLM can perform through an MCP server.                                                            | Creating a database, buying an item, preparing a database migration.   |
+
+\subsection\{📚 Detailed Notes\}
+
+\subsubsection\{Introduction to MCP Servers\}
+\begin\{itemize\}
+\item MCP allows LLMs to interface with real-world apps and services.
+\item Major players like Microsoft (Windows Copilot), Google (Gemini), OpenAI, and Anthropic (Claude) support MCP.
+\item If you want LLMs to use your app, you need an MCP server.
+\item MCP servers consist of tools, resources, and prompts. Tools are the most important, representing actions.
+\item Example: Neon's MCP server allows Cursor (an AI coding assistant) to create applications using Neon's Postgres database.
+\end\{itemize\}
+
+\texttt\{`\}
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   MCP Client│ --> │  MCP Server │ --> │Application/│
+│  (e.g. LLM) │     │ (Your App)  │     │  Service   │
+└─────────────┘     └─────────────┘     └─────────────┘
+\texttt\{`\}
+
+\subsubsection\{The Pitfalls of Autogenerating MCP Servers\}
+\begin\{itemize\}
+\item Autogenerating MCP servers from Open API schemas is a tempting but flawed approach.
+\item Services like Stainless, Speakeasy, and Mintlify offer autogeneration, but it's not ideal.
+\end\{itemize\}
+
+| Problem                         | Description                                                                                                                              | Solution                                                                                                |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| \textbf\{Extensive APIs\}              | LLMs struggle with too many choices. APIs often have many endpoints (e.g., Neon's API has 75-100), overwhelming the LLM. LLMs perform better with reduced context. | Reduce the number of tools exposed to the LLM.                                                            |
+| \textbf\{Poorly Written API Descriptions\} | API descriptions are usually written for humans, not LLMs. LLMs need direct instructions and examples.                                  | Tailor tool descriptions specifically for LLMs, potentially using structured formats like XML.           |
+| \textbf\{Low-Level Resource Management\} | APIs are designed for developers and automation, focusing on low-level resource creation.                                                 | Focus on high-level tasks and actions that align with achieving specific goals for the LLM.              |
+| \textbf\{Missed Opportunities for Innovation\} | Simply exposing an API as an MCP limits the potential for creating more interesting interactions.                                                 | Create purpose-built tools tailored to LLM workflows, even if they don't exist in your current API.      |
+
+\begin\{itemize\}
+\item   \textbf\{Problem 1: Extensive APIs\}: LLMs struggle with too many choices. APIs often have many endpoints (e.g., Neon's API has 75-100), overwhelming the LLM. LLMs perform better with reduced context.
+\item   \textbf\{Problem 2: Poorly Written API Descriptions\}: API descriptions are usually written for humans, not LLMs. LLMs need direct instructions and examples. Tool descriptions should be written specifically for LLMs, potentially using structured formats like XML. Implement tests ("Evals") to ensure that LLMs are calling the right tools for the right jobs.
+\item   \textbf\{Problem 3: Low-Level Resource Management\}: APIs are designed for developers and automation, focusing on low-level resource creation. LLMs need high-level tasks and actions that align with achieving specific goals.
+\item   \textbf\{Problem 4: Missed Opportunities for Innovation\}: Simply exposing an API as an MCP limits the potential for creating more interesting interactions.
+\end\{itemize\}
+    -   Example: Instead of a generic "Run SQL" tool, Neon provides "Prepare Database Migration" and "Complete Database Migration" tools. This allows LLMs to stage migrations on temporary branches and test them before committing, which is a more robust and helpful workflow.
+
+\subsubsection\{Best Practices for Building MCP Servers\}
+
+| Practice             | Description                                                                                                                                                                          |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| \textbf\{Don't Autogenerate\} | Avoid simply autogenerating an MCP server from your Open API schema.                                                                                                                  |
+| \textbf\{Hybrid Approach\}  | Autogenerate an MCP server as a starting point, then curate and refine it. Cut down tools, tailor descriptions, identify purpose-built tools, and write "Evals" (tests). |
+
+\begin\{itemize\}
+\item   \textbf\{Don't Autogenerate\}: Avoid simply autogenerating an MCP server from your Open API schema.
+\item   \textbf\{Hybrid Approach\}: Consider a hybrid approach:
+\end\{itemize\}
+    -   Autogenerate an MCP server as a starting point.
+    -   Cut down the number of tools to avoid overwhelming the LLM. Remove any non-essential tools.
+    -   Evaluate and refine the descriptions for all remaining tools, tailoring them for LLMs.
+    -   Identify interesting, purpose-built tools that are suitable for LLMs but not necessarily part of your existing API.
+    -   Write "Evals" (tests) to ensure LLMs use your MCP server correctly.
+
+\subsection\{💡 Important Quotes\}
+\begin\{myquote\}
+"If you're building an app or a service and you want LLMs to use your app, you need an MCP server."
+\end\{myquote\}
+>
+\begin\{myquote\}
+"The worst thing you can give an LLM is too much choice."
+\end\{myquote\}
+
+\subsection\{🔑 Key Takeaways\}
+\begin\{itemize\}
+\item Building an effective MCP server requires more than just exposing an existing API.
+\item Carefully curate the tools exposed to LLMs, focusing on high-level tasks and providing clear, LLM-friendly descriptions.
+\item Consider creating purpose-built tools tailored to LLM workflows, even if they don't exist in your current API.
+\end\{itemize\}
+
+\subsection\{📋 Action Items\}
+\begin\{itemize\}
+\item [ ] Review existing APIs and identify potential tools for an MCP server.
+\item [ ] Draft LLM-friendly descriptions for key API endpoints.
+\item [ ] Research and implement testing strategies ("Evals") for MCP servers.
+\end\{itemize\}
+
+\subsection\{🗂️ Quick Reference\}
+
+| Topic             | Description                                                                                                                   |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| \textbf\{MCP Server Goal\} | Enable LLMs to effectively interact with your application by providing curated tools and resources.                          |
+| \textbf\{Key Anti-Pattern\}| Directly autogenerating an MCP server from a full API schema.                                                               |
+| \textbf\{Best Approach\}   | Start with autogeneration, but prioritize curation, LLM-focused descriptions, and purpose-built tools.                    |
+| \textbf\{Critical Step\}   | Implement testing ("Evals") to ensure the LLM is using the MCP server correctly.                                           |
+
+\end{document}
